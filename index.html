@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#140807">
 <title>The Game</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,6 +20,10 @@
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;-webkit-text-size-adjust:100%}
+
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45;overflow:hidden}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
@@ -136,6 +146,8 @@ input[type=text]{background:var(--bg);border:1px solid var(--line);border-radius
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;background:#000;border:1px solid var(--line);color:var(--fg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
+</head>
+<body>
 
 <!-- LOBBY -->
 <section id="lobby" class="view">
@@ -244,9 +256,9 @@ function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeou
 
 /* ---------- rules (pure, host only) ---------- */
 const isFire=(g,c)=>!!(g.opts&&g.opts.fire&&FIRE.includes(c));
-const top=p=>p.cards.length?p.cards[p.cards.length-1]:(p.dir==='up'?1:100);
-const canPlay=(p,c)=>{const t=top(p);return p.dir==='up'?(c>t||c===t-10):(c<t||c===t+10)};
-const isBack=(p,c)=>{const t=top(p);return p.dir==='up'?c===t-10:c===t+10};
+const topOf=p=>p.cards.length?p.cards[p.cards.length-1]:(p.dir==='up'?1:100);
+const canPlay=(p,c)=>{const t=topOf(p);return p.dir==='up'?(c>t||c===t-10):(c<t||c===t+10)};
+const isBack=(p,c)=>{const t=topOf(p);return p.dir==='up'?c===t-10:c===t+10};
 const minCards=g=>g.deck.length?(g.opts.pro?3:2):1;
 const nm=(g,id)=>(g&&g.players&&g.players[id]&&g.players[id].name)||'Giocatore';
 const pname=id=>nm(G,id);
@@ -432,7 +444,7 @@ function renderGame(){
   else if(myTurn){const left=Math.max(0,need-done);st.textContent=left?`Tocca a te · cala ancora ${left} ${left===1?'carta':'carte'}`:'Tocca a te · puoi finire il turno o calare ancora';st.className='status mine'}
   else{st.textContent='Tocca a '+pname(cur)+(done?' · '+done+' calate finora':'');st.className='status'}
 
-  const tops=g.piles.map(top);
+  const tops=g.piles.map(topOf);
   $('#gPiles').innerHTML=g.piles.map((p,i)=>{
     const t=tops[i],has=p.cards.length;let cls='pile '+p.dir,tag='';
     if(sel!=null&&myTurn){if(canPlay(p,sel)){if(isBack(p,sel)){cls+=' back';tag=`<span class="tag10">${p.dir==='up'?'−10':'+10'}</span>`}else cls+=' ok'}else cls+=' no'}
@@ -507,3 +519,5 @@ $('#joinCode').addEventListener('keydown',e=>{if(e.key==='Enter')joinGame(e.targ
 window.addEventListener('beforeunload',e=>{if(isHost&&G&&G.status!=='over'&&conns.size){e.preventDefault();e.returnValue=''}});
 render();
 </script>
+</body>
+</html>
